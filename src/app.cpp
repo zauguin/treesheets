@@ -1,4 +1,4 @@
-#include "myapp.h"
+#include "app.h"
 #include "system.h"
 
 namespace treesheets {
@@ -9,9 +9,9 @@ wxConnectionBase *IPCServer::OnAcceptConnection(const wxString& topic)
     return new wxConnection();
 }
 
-MyApp::MyApp() : checker(NULL), frame(NULL), serv(NULL) {}
+App::App() : checker(NULL), frame(NULL), serv(NULL) {}
 
-bool MyApp::OnInit()
+bool App::OnInit()
 {
     #if wxUSE_UNICODE==0
         #error "must use unicode version of wx libs to ensure data integrity of .cts files"
@@ -42,7 +42,7 @@ bool MyApp::OnInit()
     return true;
 }
 
-int MyApp::OnExit()
+int App::OnExit()
 {
     DELETEP(serv);
     DELETEP(sys);
@@ -51,11 +51,12 @@ int MyApp::OnExit()
 }
 
 #ifdef __WXMAC__
-void MyApp::MacOpenFile(const wxString &fn)
+void App::MacOpenFile(const wxString &fn)
 {
     if(sys) sys->Open(fn);
 }
 #endif
 }
-BEGIN_EVENT_TABLE(treesheets::MyApp, wxApp)
+BEGIN_EVENT_TABLE(treesheets::App, wxApp)
 END_EVENT_TABLE()
+IMPLEMENT_APP(treesheets::App)

@@ -8,10 +8,10 @@ struct IPCServer : wxServer
     wxConnectionBase *OnAcceptConnection(const wxString& topic);
 };
 
-class MyApp : public wxApp
+class App : public wxApp
 {
   public:
-    MyApp();
+    App();
     bool OnInit();
     int OnExit();
 #ifdef __WXMAC__
