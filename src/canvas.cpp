@@ -1,26 +1,26 @@
-#include "mycanvas.h"
-#include "myframe.h"
+#include "canvas.h"
+#include "frame.h"
 #include "document.h"
 #include "system.h"
 #include "globals.h"
 
 namespace treesheets {
-TSCanvas::TSCanvas(MyFrame *fr, wxWindow *parent, const wxSize &size) : frame(fr), wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, size, wxScrolledWindowStyle|wxWANTS_CHARS), mousewheelaccum(0), doc(NULL), lastrmbwaswithctrl(false)
+Canvas::Canvas(Frame *fr, wxWindow *parent, const wxSize &size) : frame(fr), wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, size, wxScrolledWindowStyle|wxWANTS_CHARS), mousewheelaccum(0), doc(NULL), lastrmbwaswithctrl(false)
 {
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
     SetBackgroundColour(*wxWHITE);
 }
 
-TSCanvas::~TSCanvas() { DELETEP(doc); frame = NULL; }
+Canvas::~Canvas() { DELETEP(doc); frame = NULL; }
 
-void TSCanvas::OnPaint( wxPaintEvent &event )
+void Canvas::OnPaint( wxPaintEvent &event )
 {
     wxAutoBufferedPaintDC dc(this);
     //DoPrepareDC(dc);
     doc->Draw(dc);
 }
 
-void TSCanvas::UpdateHover(int mx, int my, wxDC &dc)
+void Canvas::UpdateHover(int mx, int my, wxDC &dc)
 {
     int x, y;
     CalcUnscrolledPosition(mx, my, &x, &y);
@@ -28,7 +28,7 @@ void TSCanvas::UpdateHover(int mx, int my, wxDC &dc)
     doc->Hover(x/doc->currentviewscale, y/doc->currentviewscale, dc);
 }
 
-void TSCanvas::OnMotion(wxMouseEvent &me)
+void Canvas::OnMotion(wxMouseEvent &me)
 {
     wxClientDC dc(this);
     UpdateHover(me.GetX(), me.GetY(), dc);
@@ -42,14 +42,14 @@ void TSCanvas::OnMotion(wxMouseEvent &me)
     lastmousepos = me.GetPosition();
 }
 
-void TSCanvas::SelectClick(int mx, int my, bool right, int isctrlshift)
+void Canvas::SelectClick(int mx, int my, bool right, int isctrlshift)
 {
     wxClientDC dc(this);
     UpdateHover(mx, my, dc);
     Status(doc->Select(dc, right, isctrlshift));
 }
 
-void TSCanvas::OnLeftDown(wxMouseEvent &me)
+void Canvas::OnLeftDown(wxMouseEvent &me)
 {
     #ifndef __WXMSW__    // seems to not want to give the sw focus otherwise (thinks its already in focus when its not?)
             if(frame->filter) frame->filter->SetFocus();
@@ -59,12 +59,12 @@ void TSCanvas::OnLeftDown(wxMouseEvent &me)
     else SelectClick(me.GetX(), me.GetY(), false, me.CmdDown()+me.AltDown()*2);
 }
 
-void TSCanvas::OnLeftUp(wxMouseEvent &me)
+void Canvas::OnLeftUp(wxMouseEvent &me)
 {
     if(me.CmdDown() || me.AltDown()) doc->SelectUp();
 }
 
-void TSCanvas::OnRightDown(wxMouseEvent &me)
+void Canvas::OnRightDown(wxMouseEvent &me)
 {
     SetFocus();
     SelectClick(me.GetX(), me.GetY(), true, 0);
@@ -74,14 +74,14 @@ void TSCanvas::OnRightDown(wxMouseEvent &me)
     #endif
 }
 
-void TSCanvas::OnLeftDoubleClick(wxMouseEvent &me)
+void Canvas::OnLeftDoubleClick(wxMouseEvent &me)
 {
 	wxClientDC dc(this);
     UpdateHover(me.GetX(), me.GetY(), dc);
     Status(doc->DoubleClick(dc));
 }
 
-void TSCanvas::OnChar(wxKeyEvent &ce)
+void Canvas::OnChar(wxKeyEvent &ce)
 {
     /*
     if (sys->insidefiledialog)
@@ -100,7 +100,7 @@ void TSCanvas::OnChar(wxKeyEvent &ce)
     if(unprocessed) ce.Skip();
 }
 
-void TSCanvas::OnMouseWheel(wxMouseEvent &me)
+void Canvas::OnMouseWheel(wxMouseEvent &me)
 {
     bool ctrl = me.CmdDown();
     if(sys->zoomscroll) ctrl = !ctrl;
@@ -128,12 +128,12 @@ void TSCanvas::OnMouseWheel(wxMouseEvent &me)
     }
 }
 
-void TSCanvas::OnSize(wxSizeEvent &se)
+void Canvas::OnSize(wxSizeEvent &se)
 {
     doc->Refresh();
 }
 
-void TSCanvas::OnContextMenuClick(wxContextMenuEvent &cme)
+void Canvas::OnContextMenuClick(wxContextMenuEvent &cme)
 {
     if(lastrmbwaswithctrl)
     {
@@ -148,7 +148,7 @@ void TSCanvas::OnContextMenuClick(wxContextMenuEvent &cme)
     }
 }
 
-void TSCanvas::CursorScroll(int dx, int dy)
+void Canvas::CursorScroll(int dx, int dy)
 {
     int x, y;
     GetViewStart(&x, &y);
@@ -157,21 +157,21 @@ void TSCanvas::CursorScroll(int dx, int dy)
     Scroll(x, y);
 }
 
-void TSCanvas::Status(const char *msg)
+void Canvas::Status(const char *msg)
 {
     if(frame->GetStatusBar() && (!msg || *msg)) frame->SetStatusText(msg ? wxString::Format(L"%s", msg) : L"", 0);
     // using Format instead of FromAscii since the latter doesn't deal with >128 international ascii chars
 }
 }
-BEGIN_EVENT_TABLE(treesheets::TSCanvas, wxScrolledWindow)
-  EVT_MOUSEWHEEL(treesheets::TSCanvas::OnMouseWheel)
-  EVT_PAINT(treesheets::TSCanvas::OnPaint)
-  EVT_MOTION(treesheets::TSCanvas::OnMotion)
-  EVT_LEFT_DOWN(treesheets::TSCanvas::OnLeftDown)
-  EVT_LEFT_UP(treesheets::TSCanvas::OnLeftUp)
-  EVT_RIGHT_DOWN(treesheets::TSCanvas::OnRightDown)
-  EVT_LEFT_DCLICK(treesheets::TSCanvas::OnLeftDoubleClick)
-  EVT_CHAR(treesheets::TSCanvas::OnChar)
-  EVT_CONTEXT_MENU(treesheets::TSCanvas::OnContextMenuClick)
-  EVT_SIZE(treesheets::TSCanvas::OnSize)
+BEGIN_EVENT_TABLE(treesheets::Canvas, wxScrolledWindow)
+  EVT_MOUSEWHEEL(treesheets::Canvas::OnMouseWheel)
+  EVT_PAINT(treesheets::Canvas::OnPaint)
+  EVT_MOTION(treesheets::Canvas::OnMotion)
+  EVT_LEFT_DOWN(treesheets::Canvas::OnLeftDown)
+  EVT_LEFT_UP(treesheets::Canvas::OnLeftUp)
+  EVT_RIGHT_DOWN(treesheets::Canvas::OnRightDown)
+  EVT_LEFT_DCLICK(treesheets::Canvas::OnLeftDoubleClick)
+  EVT_CHAR(treesheets::Canvas::OnChar)
+  EVT_CONTEXT_MENU(treesheets::Canvas::OnContextMenuClick)
+  EVT_SIZE(treesheets::Canvas::OnSize)
 END_EVENT_TABLE()

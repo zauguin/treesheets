@@ -1,12 +1,12 @@
-#include "myframe.h"
+#include "frame.h"
 #include "mywxtools.h"
 #include "globals.h"
 #include "system.h"
-#include "mycanvas.h"
+#include "canvas.h"
 #include "document.h"
 #include "cell.h"
 namespace treesheets {
-MyFrame::MyFrame(wxString exename, wxApp *_app) : wxFrame((wxFrame *)NULL, wxID_ANY, L"TreeSheets", wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE),
+Frame::Frame(wxString exename, wxApp *_app) : wxFrame((wxFrame *)NULL, wxID_ANY, L"TreeSheets", wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE),
     filter(NULL), replaces(NULL), tb(NULL), nb(NULL), idd(NULL), refreshhack(0), refreshhackinstances(0), aui(NULL), fromclosebox(true), app(_app)
     #ifdef FSWATCH
     , watcherwaitingforuser(false)
@@ -71,8 +71,8 @@ MyFrame::MyFrame(wxString exename, wxApp *_app) : wxFrame((wxFrame *)NULL, wxID_
         // FIXME: what is the correct way to exit?
     }
     
-    if (sys->singletray) tbi.Connect(wxID_ANY, wxEVT_TASKBAR_LEFT_UP,     wxTaskBarIconEventHandler(MyFrame::OnTBIDBLClick), NULL, this);
-    else                 tbi.Connect(wxID_ANY, wxEVT_TASKBAR_LEFT_DCLICK, wxTaskBarIconEventHandler(MyFrame::OnTBIDBLClick), NULL, this);
+    if (sys->singletray) tbi.Connect(wxID_ANY, wxEVT_TASKBAR_LEFT_UP,     wxTaskBarIconEventHandler(Frame::OnTBIDBLClick), NULL, this);
+    else                 tbi.Connect(wxID_ANY, wxEVT_TASKBAR_LEFT_DCLICK, wxTaskBarIconEventHandler(Frame::OnTBIDBLClick), NULL, this);
 
     aui = new wxAuiManager(this);
 
@@ -522,7 +522,7 @@ MyFrame::MyFrame(wxString exename, wxApp *_app) : wxFrame((wxFrame *)NULL, wxID_
     #ifdef FSWATCH
         watcher = new wxFileSystemWatcher();
         watcher->SetOwner(this);
-        Connect(wxEVT_FSWATCHER, wxFileSystemWatcherEventHandler(MyFrame::OnFileSystemEvent));
+        Connect(wxEVT_FSWATCHER, wxFileSystemWatcherEventHandler(Frame::OnFileSystemEvent));
     #endif
 
     Show(TRUE);
@@ -534,7 +534,7 @@ MyFrame::MyFrame(wxString exename, wxApp *_app) : wxFrame((wxFrame *)NULL, wxID_
     wxSafeYield();
 }
 
-MyFrame::~MyFrame()
+Frame::~Frame()
 {
     filehistory.Save(sys->cfg);
     if(!IsIconized())
@@ -560,9 +560,9 @@ void OnSize(wxSizeEvent& event)
     if(nb) nb->SetSize(GetClientSize());
 }
 */
-TSCanvas *MyFrame::NewTab(Document *doc)
+Canvas *Frame::NewTab(Document *doc)
 {        
-    TSCanvas *sw = new TSCanvas(this, nb);
+    Canvas *sw = new Canvas(this, nb);
     sw->doc = doc;
     doc->sw = sw;
     sw->SetScrollRate(1, 1);
@@ -572,18 +572,18 @@ TSCanvas *MyFrame::NewTab(Document *doc)
     return sw;
 }
 
-TSCanvas *MyFrame::GetCurTab()
+Canvas *Frame::GetCurTab()
 {
-    return nb && nb->GetSelection()>=0 ? (TSCanvas *)nb->GetPage(nb->GetSelection()) : NULL;
+    return nb && nb->GetSelection()>=0 ? (Canvas *)nb->GetPage(nb->GetSelection()) : NULL;
 }
 
-TSCanvas *MyFrame::GetTabByFileName(const wxString &fn)
+Canvas *Frame::GetTabByFileName(const wxString &fn)
 {
     //if(singlesw && singlesw->doc->filename==fn) return singlesw;
     
     if(nb) loop(i, nb->GetPageCount())
     {
-        TSCanvas *p = (TSCanvas *)nb->GetPage(i);
+        Canvas *p = (Canvas *)nb->GetPage(i);
         if(p->doc->filename==fn)
         {
             nb->SetSelection(i);
@@ -594,23 +594,23 @@ TSCanvas *MyFrame::GetTabByFileName(const wxString &fn)
     return NULL;
 }
 
-void MyFrame::OnTabChange(wxAuiNotebookEvent &nbe)
+void Frame::OnTabChange(wxAuiNotebookEvent &nbe)
 {
-    TSCanvas *sw = (TSCanvas *)nb->GetPage(nbe.GetSelection());
+    Canvas *sw = (Canvas *)nb->GetPage(nbe.GetSelection());
     sw->Status();
     sys->TabChange(sw->doc);
 }
 
-void MyFrame::TabsReset()
+void Frame::TabsReset()
 {
     if(nb) loop(i, nb->GetPageCount())
     {
-        TSCanvas *p = (TSCanvas *)nb->GetPage(i);
+        Canvas *p = (Canvas *)nb->GetPage(i);
         p->doc->rootgrid->ResetChildren();
     }
 }
 
-void MyFrame::OnTabClose(wxAuiNotebookEvent &nbe)
+void Frame::OnTabClose(wxAuiNotebookEvent &nbe)
 {
     sys->RememberOpenFiles();
     if(nb->GetPageCount()<=1)
@@ -624,12 +624,12 @@ void MyFrame::OnTabClose(wxAuiNotebookEvent &nbe)
     }
 }
 
-void MyFrame::CycleTabs()
+void Frame::CycleTabs()
 {
     nb->SetSelection((nb->GetSelection()+1)%nb->GetPageCount());
 }
 
-void MyFrame::SetPageTitle(const wxString &fn, wxString mods, int page)
+void Frame::SetPageTitle(const wxString &fn, wxString mods, int page)
 {
     if(page<0) page = nb->GetSelection();
     if(page<0) return;
@@ -637,19 +637,19 @@ void MyFrame::SetPageTitle(const wxString &fn, wxString mods, int page)
     nb->SetPageText(page, (fn.empty() ? L"<unnamed>" : wxFileName(fn).GetName())+mods);
 }
 
-void MyFrame::AddTBIcon(wxToolBar *tb, const wxChar *name, int action, wxString file)
+void Frame::AddTBIcon(wxToolBar *tb, const wxChar *name, int action, wxString file)
 {
     wxBitmap bm;
     if(bm.LoadFile(file, wxBITMAP_TYPE_PNG)) tb->AddTool(action, name, bm, bm, wxITEM_NORMAL, name);
 }
 
-void MyFrame::TBMenu(wxToolBar *tb, wxMenu *menu, const wxChar *name, int id)
+void Frame::TBMenu(wxToolBar *tb, wxMenu *menu, const wxChar *name, int id)
 {
     tb->AddTool(id, name, wxNullBitmap, wxEmptyString, wxITEM_DROPDOWN);
     tb->SetDropdownMenu(id, menu);
 }
 
-void MyFrame::OnMenu(wxCommandEvent &ce)
+void Frame::OnMenu(wxCommandEvent &ce)
 {
     wxTextCtrl *tc;
     if(((tc = filter) && filter==wxWindow::FindFocus()) || ((tc = replaces) && replaces==wxWindow::FindFocus())) 
@@ -679,7 +679,7 @@ void MyFrame::OnMenu(wxCommandEvent &ce)
             case A_SELALL:    tc->SetSelection(0,    1000); return;
         }
     }
-    TSCanvas *sw = GetCurTab();
+    Canvas *sw = GetCurTab();
     wxClientDC dc(sw);
     sw->DoPrepareDC(dc);
     sw->doc->ShiftToCenter(dc);
@@ -748,7 +748,7 @@ void OnMouseWheel(wxMouseEvent &me)
 }
 */
 
-void MyFrame::OnSearch(wxCommandEvent &ce)
+void Frame::OnSearch(wxCommandEvent &ce)
 {
     sys->searchstring = ce.GetString().Lower();
     Document *doc = GetCurTab()->doc;
@@ -758,19 +758,19 @@ void MyFrame::OnSearch(wxCommandEvent &ce)
     GetCurTab()->Status();
 }
 
-void MyFrame::ReFocus() { if(GetCurTab()) GetCurTab()->SetFocus(); } 
+void Frame::ReFocus() { if(GetCurTab()) GetCurTab()->SetFocus(); } 
 
-void MyFrame::OnCellColor(wxCommandEvent &ce) { GetCurTab()->doc->ColorChange(A_CELLCOLOR, ce.GetInt()); ReFocus(); }
-void MyFrame::OnTextColor(wxCommandEvent &ce) { GetCurTab()->doc->ColorChange(A_TEXTCOLOR, ce.GetInt()); ReFocus(); }
-void MyFrame::OnBordColor(wxCommandEvent &ce) { GetCurTab()->doc->ColorChange(A_BORDCOLOR, ce.GetInt()); ReFocus(); }
-void MyFrame::OnDDImage  (wxCommandEvent &ce) { GetCurTab()->doc->ImageChange(idd->as[ce.GetInt()]);     ReFocus(); }
+void Frame::OnCellColor(wxCommandEvent &ce) { GetCurTab()->doc->ColorChange(A_CELLCOLOR, ce.GetInt()); ReFocus(); }
+void Frame::OnTextColor(wxCommandEvent &ce) { GetCurTab()->doc->ColorChange(A_TEXTCOLOR, ce.GetInt()); ReFocus(); }
+void Frame::OnBordColor(wxCommandEvent &ce) { GetCurTab()->doc->ColorChange(A_BORDCOLOR, ce.GetInt()); ReFocus(); }
+void Frame::OnDDImage  (wxCommandEvent &ce) { GetCurTab()->doc->ImageChange(idd->as[ce.GetInt()]);     ReFocus(); }
 
-void MyFrame::OnSizing(wxSizeEvent  &se) { se.Skip(); }
+void Frame::OnSizing(wxSizeEvent  &se) { se.Skip(); }
 
-void MyFrame::OnMaximize(wxMaximizeEvent &me) { ReFocus(); }
-void MyFrame::OnActivate(wxActivateEvent &ae) { ReFocus(); }    
+void Frame::OnMaximize(wxMaximizeEvent &me) { ReFocus(); }
+void Frame::OnActivate(wxActivateEvent &ae) { ReFocus(); }    
 
-void MyFrame::OnIconize(wxIconizeEvent &me)
+void Frame::OnIconize(wxIconizeEvent &me)
 {
     if(me.IsIconized())
     {
@@ -789,7 +789,7 @@ void MyFrame::OnIconize(wxIconizeEvent &me)
     }
 }
 
-void MyFrame::DeIconize()
+void Frame::DeIconize()
 {
     if(!IsIconized())
     {
@@ -801,12 +801,12 @@ void MyFrame::DeIconize()
     tbi.RemoveIcon();    
 }
 
-void MyFrame::OnTBIDBLClick(wxTaskBarIconEvent &e)
+void Frame::OnTBIDBLClick(wxTaskBarIconEvent &e)
 {
     DeIconize();
 }
 
-void MyFrame::OnClosing(wxCloseEvent &ce)
+void Frame::OnClosing(wxCloseEvent &ce)
 {
     bool fcb = fromclosebox;
     fromclosebox = true;
@@ -841,7 +841,7 @@ void MyFrame::OnClosing(wxCloseEvent &ce)
 }
 
 #ifdef WIN32
-void MyFrame::SetRegKey(wxChar *key, wxString val)
+void Frame::SetRegKey(wxChar *key, wxString val)
 {
     wxRegKey rk(key);
     rk.Create();
@@ -849,7 +849,7 @@ void MyFrame::SetRegKey(wxChar *key, wxString val)
 }
 #endif
 
-void MyFrame::SetFileAssoc(wxString &exename)
+void Frame::SetFileAssoc(wxString &exename)
 {
     #ifdef WIN32
         SetRegKey(L"HKEY_CLASSES_ROOT\\.cts",                             L"TreeSheets");
@@ -862,7 +862,7 @@ void MyFrame::SetFileAssoc(wxString &exename)
 }
 
 #ifdef FSWATCH
-void MyFrame::OnFileSystemEvent(wxFileSystemWatcherEvent &event)
+void Frame::OnFileSystemEvent(wxFileSystemWatcherEvent &event)
 {
     if(event.GetChangeType()!=wxFSW_EVENT_MODIFY || watcherwaitingforuser) return;
 
@@ -870,7 +870,7 @@ void MyFrame::OnFileSystemEvent(wxFileSystemWatcherEvent &event)
 
     if(nb) loop(i, nb->GetPageCount())
     {
-        Document *doc = ((TSCanvas *)nb->GetPage(i))->doc;
+        Document *doc = ((Canvas *)nb->GetPage(i))->doc;
         if(doc->filename==modfile)
         {
             wxDateTime modtime = wxFileName(modfile).GetModificationTime();
@@ -904,7 +904,7 @@ void MyFrame::OnFileSystemEvent(wxFileSystemWatcherEvent &event)
             else
             {
                 loop(j, nb->GetPageCount())
-                    if(((TSCanvas *)nb->GetPage(j))->doc==doc)
+                    if(((Canvas *)nb->GetPage(j))->doc==doc)
                         nb->DeletePage(j);
                 ::wxRemoveFile(sys->TmpName(modfile));
                 GetCurTab()->Status("File has been re-loaded because of modifications of another program / computer");
@@ -916,20 +916,20 @@ void MyFrame::OnFileSystemEvent(wxFileSystemWatcherEvent &event)
 }
 #endif
 }
-BEGIN_EVENT_TABLE(treesheets::MyFrame, wxFrame)
-  EVT_SIZING(treesheets::MyFrame::OnSizing)
-  //EVT_SIZE(treesheets::MyFrame::OnSize)
-  EVT_MENU(wxID_ANY, treesheets::MyFrame::OnMenu)
-  EVT_TEXT(A_SEARCH, treesheets::MyFrame::OnSearch)
-  EVT_CLOSE(treesheets::MyFrame::OnClosing)
-  EVT_MAXIMIZE(treesheets::MyFrame::OnMaximize)
-  EVT_ACTIVATE(treesheets::MyFrame::OnActivate)
-  EVT_COMBOBOX(A_CELLCOLOR, treesheets::MyFrame::OnCellColor)
-  EVT_COMBOBOX(A_TEXTCOLOR, treesheets::MyFrame::OnTextColor)
-  EVT_COMBOBOX(A_BORDCOLOR, treesheets::MyFrame::OnBordColor)
-  EVT_COMBOBOX(A_DDIMAGE,   treesheets::MyFrame::OnDDImage)
-  EVT_ICONIZE(treesheets::MyFrame::OnIconize)
-  EVT_AUINOTEBOOK_PAGE_CHANGED(wxID_ANY, treesheets::MyFrame::OnTabChange)
-  EVT_AUINOTEBOOK_PAGE_CLOSE(wxID_ANY, treesheets::MyFrame::OnTabClose)
-  //EVT_MOUSEWHEEL(treesheets::MyFrame::OnMouseWheel)
+BEGIN_EVENT_TABLE(treesheets::Frame, wxFrame)
+  EVT_SIZING(treesheets::Frame::OnSizing)
+  //EVT_SIZE(treesheets::Frame::OnSize)
+  EVT_MENU(wxID_ANY, treesheets::Frame::OnMenu)
+  EVT_TEXT(A_SEARCH, treesheets::Frame::OnSearch)
+  EVT_CLOSE(treesheets::Frame::OnClosing)
+  EVT_MAXIMIZE(treesheets::Frame::OnMaximize)
+  EVT_ACTIVATE(treesheets::Frame::OnActivate)
+  EVT_COMBOBOX(A_CELLCOLOR, treesheets::Frame::OnCellColor)
+  EVT_COMBOBOX(A_TEXTCOLOR, treesheets::Frame::OnTextColor)
+  EVT_COMBOBOX(A_BORDCOLOR, treesheets::Frame::OnBordColor)
+  EVT_COMBOBOX(A_DDIMAGE,   treesheets::Frame::OnDDImage)
+  EVT_ICONIZE(treesheets::Frame::OnIconize)
+  EVT_AUINOTEBOOK_PAGE_CHANGED(wxID_ANY, treesheets::Frame::OnTabChange)
+  EVT_AUINOTEBOOK_PAGE_CLOSE(wxID_ANY, treesheets::Frame::OnTabClose)
+  //EVT_MOUSEWHEEL(treesheets::Frame::OnMouseWheel)
 END_EVENT_TABLE()

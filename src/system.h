@@ -1,5 +1,5 @@
 #pragma once
-#include "myframe.fwd.h"
+#include "frame.fwd.h"
 #include "cell.fwd.h"
 #include "grid.fwd.h"
 #include "selection.fwd.h"
@@ -22,7 +22,7 @@ struct Image
 
 struct System
 {
-    MyFrame *frame;
+    Frame *frame;
 
     wxString defaultfont, searchstring;
 

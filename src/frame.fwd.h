@@ -1,4 +1,4 @@
 #pragma once
 namespace treesheets {
-struct MyFrame;
+struct Frame;
 }

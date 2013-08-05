@@ -1,9 +1,9 @@
 #pragma once
 #include "document.fwd.h"
 #include "mywxtools.h"
-#include "mycanvas.fwd.h"
+#include "canvas.fwd.h"
 namespace treesheets {
-struct MyFrame : wxFrame
+struct Frame : wxFrame
 {
     wxMenu *editmenupopup;
     wxString exepath;
@@ -25,11 +25,11 @@ struct MyFrame : wxFrame
         wxFileSystemWatcher *watcher;
         bool watcherwaitingforuser;
     #endif
-    MyFrame(wxString exename, wxApp *_app);
-    ~MyFrame();
-    TSCanvas *NewTab(Document *doc);
-    TSCanvas *GetCurTab();
-    TSCanvas *GetTabByFileName(const wxString &fn);
+    Frame(wxString exename, wxApp *_app);
+    ~Frame();
+    Canvas *NewTab(Document *doc);
+    Canvas *GetCurTab();
+    Canvas *GetTabByFileName(const wxString &fn);
     void OnTabChange(wxAuiNotebookEvent &nbe);
     void TabsReset();
     void OnTabClose(wxAuiNotebookEvent &nbe);

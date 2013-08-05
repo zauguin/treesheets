@@ -1,5 +1,6 @@
 #include "app.h"
 #include "system.h"
+#include "frame.h"
 
 namespace treesheets {
 wxConnectionBase *IPCServer::OnAcceptConnection(const wxString& topic)
@@ -32,7 +33,7 @@ bool App::OnInit()
     }
     
     sys = new System();
-    frame = new MyFrame(argv[0], this);
+    frame = new Frame(argv[0], this);
     SetTopWindow(frame);
     sys->Init(argc, argv);
     

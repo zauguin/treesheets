@@ -1,7 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "document.fwd.h"
-#include "mycanvas.fwd.h"
+#include "canvas.fwd.h"
 #include "selection.h"
 namespace treesheets {
 struct UndoItem
@@ -16,7 +16,7 @@ struct UndoItem
 
 struct Document
 {
-    TSCanvas *sw;
+    Canvas *sw;
 
     Cell *rootgrid;
     Selection hover, selected, begindrag;

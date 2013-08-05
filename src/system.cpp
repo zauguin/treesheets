@@ -3,10 +3,10 @@
 #include "grid.h"
 #include "selection.h"
 #include "cell.h"
-#include "myframe.h"
+#include "frame.h"
 #include "document.h"
 #include "globals.h"
-#include "mycanvas.h"
+#include "canvas.h"
 
 namespace treesheets {
 
@@ -280,7 +280,7 @@ void System::RememberOpenFiles()
     
     loop(i, n)
     {
-        TSCanvas *p = (TSCanvas *)frame->nb->GetPage(i);
+        Canvas *p = (Canvas *)frame->nb->GetPage(i);
         if(p->doc->filename.Len())
         {
             cfg.Write(wxString::Format(L"lastopenfile_%d", i), p->doc->filename);
@@ -309,7 +309,7 @@ void System::SaveCheck()
 {
     loop(i, frame->nb->GetPageCount())
     {
-        ((TSCanvas *)frame->nb->GetPage(i))->doc->AutoSave(!frame->IsActive(), i);
+        ((Canvas *)frame->nb->GetPage(i))->doc->AutoSave(!frame->IsActive(), i);
     }
 }
 

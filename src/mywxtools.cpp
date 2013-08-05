@@ -1,7 +1,7 @@
 #include "mywxtools.h"
 #include "system.h"
-#include "mycanvas.h"
-#include "myframe.h"
+#include "canvas.h"
+#include "frame.h"
 #include "document.h"
 #include "globals.h"
 namespace treesheets {
@@ -9,7 +9,7 @@ DropTarget::DropTarget(wxDataObject *data) : wxDropTarget(data) {};
 
 wxDragResult DropTarget::OnDragOver(wxCoord x, wxCoord y, wxDragResult def)
 {
-    TSCanvas *sw = sys->frame->GetCurTab();
+    Canvas *sw = sys->frame->GetCurTab();
     //sw->SelectClick(x, y, false, 0);
     wxClientDC dc(sw);
     sw->UpdateHover(x, y, dc);
@@ -24,13 +24,13 @@ bool DropTarget::OnDrop(wxCoord x, wxCoord y)
 wxDragResult DropTarget::OnData(wxCoord x, wxCoord y, wxDragResult def)
 {
     GetData();
-    TSCanvas *sw = sys->frame->GetCurTab();
+    Canvas *sw = sys->frame->GetCurTab();
     sw->SelectClick(x, y, false, 0);
     sw->doc->PasteOrDrop();
     return wxDragCopy;
 }
 
-void BlinkTimer::Notify() { TSCanvas *tsc = sys->frame->GetCurTab(); if(tsc) tsc->doc->Blink(); }
+void BlinkTimer::Notify() { Canvas *tsc = sys->frame->GetCurTab(); if(tsc) tsc->doc->Blink(); }
 
 ThreeChoiceDialog::ThreeChoiceDialog(wxWindow *parent, const wxString &title, const wxString &msg, const wxString &ch1, const wxString &ch2, const wxString &ch3) : wxDialog(parent, wxID_ANY, title)
 {

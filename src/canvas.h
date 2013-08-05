@@ -1,19 +1,20 @@
 #pragma once
+#include "canvas.fwd.h"
 #include "stdafx.h"
-#include "myframe.fwd.h"
+#include "frame.fwd.h"
 #include "document.fwd.h"
 
 namespace treesheets {
-struct TSCanvas : public wxScrolledWindow
+struct Canvas : public wxScrolledWindow
 {
-    MyFrame *frame;
+    Frame *frame;
     Document *doc;
     
     int mousewheelaccum;
     bool lastrmbwaswithctrl;
     wxPoint lastmousepos;
-    TSCanvas(MyFrame *fr, wxWindow *parent, const wxSize &size = wxDefaultSize);
-    ~TSCanvas() ;
+    Canvas(Frame *fr, wxWindow *parent, const wxSize &size = wxDefaultSize);
+    ~Canvas() ;
     void OnPaint( wxPaintEvent &event );
     void UpdateHover(int mx, int my, wxDC &dc);
     void OnMotion(wxMouseEvent &me);

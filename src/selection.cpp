@@ -3,7 +3,7 @@
 #include "grid.h"
 #include "cell.h"
 #include "system.h"
-#include "mycanvas.h"
+#include "canvas.h"
 #include "globals.h"
 namespace treesheets {
 Selection::Selection() { memset(this, 0, sizeof(Selection)); }

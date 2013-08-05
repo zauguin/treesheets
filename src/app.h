@@ -1,6 +1,6 @@
 #pragma once
 #include "stdafx.h"
-#include "myframe.h"
+#include "frame.fwd.h"
 namespace treesheets {
 
 struct IPCServer : wxServer
@@ -18,7 +18,7 @@ class App : public wxApp
     void MacOpenFile(const wxString &fn);
 #endif
   private:
-    MyFrame *frame;
+    Frame *frame;
     wxSingleInstanceChecker *checker;
     IPCServer *serv;
 

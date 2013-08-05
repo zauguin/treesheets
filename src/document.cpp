@@ -1,10 +1,10 @@
 #include "document.h"
 #include "cell.h"
 #include "system.h"
-#include "myframe.h"
+#include "frame.h"
 #include "globals.h"
 #include "grid.h"
-#include "mycanvas.h"
+#include "canvas.h"
 namespace treesheets {
 
 UndoItem::UndoItem() : clone(NULL) {}

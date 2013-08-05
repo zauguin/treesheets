@@ -4,7 +4,7 @@
 #include "globals.h"
 #include "system.h"
 #include "document.h"
-#include "myframe.h"
+#include "frame.h"
 #include "mywxtools.h"
 namespace treesheets {
 
